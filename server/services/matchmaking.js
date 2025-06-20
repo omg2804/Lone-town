@@ -255,6 +255,7 @@ class MatchmakingService {
         state: 'available',
         isActive: true,
         currentMatchId: null,
+        isBot: { $ne: true }, 
         $or: [
           { freezeUntil: { $exists: false } },
           { freezeUntil: null },
@@ -273,6 +274,12 @@ class MatchmakingService {
       }));
 
       scoredMatches.sort((a, b) => b.score - a.score);
+      const perfectMatch = scoredMatches.find(m => m.score === 100);
+if (perfectMatch) {
+  const match = await this.createMatch(user, perfectMatch.user, perfectMatch.score);
+  console.log(`Created 100% match between ${user._id} and ${perfectMatch.user._id}`);
+  return match;
+}
 
       const bestMatch = scoredMatches[0];
 
